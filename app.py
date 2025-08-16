@@ -4,13 +4,33 @@ import joblib
 import plotly.express as px
 import sys, platform
 
-# ✅ Page config must be here at the very top
+# ------------------- Page Config -------------------
 st.set_page_config(page_title="Sleep Quality Dashboard", layout="wide")
 
-# (optional) show python version
+# (optional) Show Python version
 st.caption(f"Python: {sys.version.split()[0]} • {platform.python_implementation()}")
 
-# ---- rest of your code ----
+# ------------------- Helper Function -------------------
+def generate_suggestions(user_data):
+    """Generate simple health suggestions based on user data."""
+    tips = []
+    try:
+        if "Stress Level" in user_data and user_data["Stress Level"] > 7:
+            tips.append("Try relaxation techniques (meditation, deep breathing, yoga).")
+        if "Physical Activity Level" in user_data and user_data["Physical Activity Level"] < 3:
+            tips.append("Increase daily physical activity for better sleep quality.")
+        if "Quality of Sleep" in user_data and user_data["Quality of Sleep"] < 5:
+            tips.append("Maintain a consistent bedtime routine.")
+        if "Caffeine Consumption" in user_data and user_data["Caffeine Consumption"] > 3:
+            tips.append("Reduce caffeine intake, especially in the evening.")
+    except Exception:
+        tips.append("Unable to generate detailed suggestions for this user.")
+    if not tips:
+        tips.append("Your sleep quality seems fine. Keep up healthy habits!")
+    return tips
+
+# ------------------- Load Dataset -------------------
+df = None
 try:
     df = pd.read_csv("ss_clean.csv")
     st.success("✅ Dataset loaded successfully!")
@@ -33,7 +53,6 @@ except Exception as e:
     st.error(f"❌ Failed to load Sleep Quality model: {e}")
 
 # ------------------- Dashboard UI -------------------
-st.set_page_config(page_title="Sleep Quality Dashboard", layout="wide")
 st.title("😴 Sleep Quality & Disorder Prediction Dashboard")
 
 if df is not None and model_sd is not None and model_qs is not None:
